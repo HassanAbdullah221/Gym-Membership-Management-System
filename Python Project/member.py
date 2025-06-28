@@ -30,7 +30,48 @@ class Member:
     def new_measurement(self , measurement : Measurement ):
         self.__measurement.append(measurement)
     
+    # def display_measurement_history(self):
+    #     for m in self.__measurement :
+    #         m.display()
+        
+    def display_subscription_history(self):
+        if not self.__subscription:
+            print(Fore.YELLOW + "No subscriptions found.")
+            return
+        
+        table = []
+        for s in self.__subscription:
+            table.append([
+                s.get_category(),
+                s.get_start_date(),
+                s.get_end_date(),
+                s.get_payment_type(),
+                s.get_amount_paid()
+            ])
+
+        headers = ["Category", "Start Date", "End Date", "Payment Type", "Amount Paid"]
+        table_str = tabulate(table, headers=headers, tablefmt="fancy_grid")
+        print(Fore.YELLOW + table_str)
+        
+    def display_measurement_history(self):
+        if not self.__measurement:
+            print(Fore.YELLOW + "No measurements found.")
+            return
+
+        table = []
+        for m in self.__measurement:
+            table.append([
+                m.get_height_cm(),
+                m.get_weight_kg(),
+                m.get_bmi(),
+                m.get_date()
+            ])
+        
+        headers = ["Height (cm)", "Weight (kg)", "BMI", "Date"]
+        table_str = tabulate(table, headers=headers, tablefmt="fancy_grid")
+        print(Fore.YELLOW + table_str)    
     
+        
     # def display(self):
     #     print("------ Member Information ------")
     #     print(f"ID: {self.get_member_id()}")
@@ -48,10 +89,9 @@ class Member:
             self.get_birth_date(),
             self.get_age(),
             self.get_username(),
-            self.get_password(),
             self.get_membership_status()
         ]]
-        headers = ["ID", "Name", "Birth Date", "Age", "Username", "Password", "Status"]
+        headers = ["ID", "Name", "Birth Date", "Age", "Username", "Status"]
         print(tabulate(table, headers=headers, tablefmt="fancy_grid"))
    
     def to_list(self):
@@ -61,7 +101,6 @@ class Member:
             self.__birth_date,
             self.__age,
             self.__username,
-            self.__password,
             self.__membership_status
         ]
 

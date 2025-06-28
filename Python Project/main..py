@@ -53,6 +53,85 @@ def delete_member(delete_id):
 def search_member(search_id):
     return gym_members.get(search_id)
 
+def create_measurements():
+    height = float(input("Enter your height: "))
+    weight = float(input("Enter your weight: "))
+    date = str(datetime.now())
+    return Measurement(height , weight , date)
+
+def create_subscription():
+    category = input("Enter subscription category (Silver, Gold, Diamond): ").strip()
+
+    start_date = datetime.now()
+    print(Fore.CYAN + f"Start Date set to today: {start_date}")
+
+    duration_months = int(input("Enter subscription duration (in months): "))
+    payment_type = input("Enter payment type (Cash or Card): ").strip()
+    amount_paid = float(input("Enter amount paid: "))
+
+    sub = Subscription(category, start_date, "", payment_type, amount_paid)
+    sub.set_start_date(start_date, duration_months)
+    return sub
+
+def display_all_tables():
+    if not gym_members:
+        print(Fore.RED + "No data to display.")
+        return
+
+    print(Fore.CYAN + "\n==== All Members ====\n")
+    headers = ["ID", "Name", "Birth Date", "Age", "Username", "Status"]
+    member_table = []
+
+    for member in gym_members.values():
+        row = member.to_list()
+        member_table.append(row)
+
+    print(tabulate(member_table, headers=headers, tablefmt="fancy_grid"))
+
+    print(Fore.BLUE + "\n==== All Measurements ====\n")
+    m_headers = ["Member ID", "Height (cm)", "Weight (kg)", "BMI", "Date"]
+    m_table = []
+
+    for member in gym_members.values():
+        measurements = member.get_measurement()
+        for m in measurements:
+            row = [
+                member.get_member_id(),
+                m.get_height_cm(),
+                m.get_weight_kg(),
+                m.get_bmi(),
+                m.get_date()
+            ]
+            m_table.append(row)
+
+    if len(m_table) > 0:
+        print(tabulate(m_table, headers=m_headers, tablefmt="fancy_grid"))
+    else:
+        print(Fore.YELLOW + "No measurements recorded.")
+
+    print(Fore.MAGENTA + "\n==== All Subscriptions ====\n")
+    s_headers = ["Member ID", "Category", "Start Date", "End Date", "Payment Type", "Amount Paid"]
+    s_table = []
+
+    for member in gym_members.values():
+        subs = member.get_subscription()
+        for s in subs:
+            row = [
+                member.get_member_id(),
+                s.get_category(),
+                s.get_start_date(),
+                s.get_end_date(),
+                s.get_payment_type(),
+                s.get_amount_paid()
+            ]
+            s_table.append(row)
+
+    if len(s_table) > 0:
+        print(tabulate(s_table, headers=s_headers, tablefmt="fancy_grid"))
+    else:
+        print(Fore.YELLOW + "No subscriptions recorded.")
+
+
 while True:
     menu = Fore.CYAN + '''
 ------------------------------------
@@ -62,11 +141,8 @@ while True:
 2- Display all members
 3- Delete a member
 4- Search for a member
-5- Add subscription to a member
-6- Add body measurement
-7- Display all subscriptions
-8- Display all measurements
-9- Exit
+5- Display Everything in the system
+6- Exit
 ------------------------------------
 '''
     choice = input(menu + Fore.YELLOW + "\nChoose an option: ").strip()
@@ -103,34 +179,37 @@ while True:
         else:
             print(Fore.CYAN + "--- Member Found ---")
             member.display()
+            while True:
+                submenu = Fore.CYAN + '''
+------------------------------------
+1- Add new measurement
+2- Add new subscription
+3- Display all measurements
+4- Display all subscriptions 
+5- Back to main menu
+------------------------------------
+            '''
+                x = input(submenu + Fore.YELLOW + "\nChoose an option: ").strip()
+                if x == '1':
+                    measurements = create_measurements()
+                    member.new_measurement(measurements)
+                    print(Fore.GREEN + "Measurement added successfully.")
+                elif x == '2':
+                    sub = create_subscription()
+                    member.new_subsicribe(sub)
+                    print(Fore.GREEN + "Subscription added successfully.")
+                elif x == '3':
+                    member.display_measurement_history()
+                elif x == '4':
+                    member.display_subscription_history()
+                elif x == '5':
+                    break
+                else:
+                    print(Fore.RED + "Invalid option. Try again.")
 
     elif choice == '5':
-        print(Fore.YELLOW + "Feature not implemented yet.")
+        display_all_tables()
     elif choice == '6':
-        print(Fore.YELLOW + "Feature not implemented yet.")
-    elif choice == '7':
-        print(Fore.YELLOW + "Feature not implemented yet.")
-    elif choice == '8':
-        member_id = input("Enter member ID to plot BMI history: ").strip()
-        member = search_member(member_id)
-
-        if member is None:
-            print(Fore.RED + "Member not found.")
-        else:
-            measurements = member.get_measurement()
-            if not measurements:
-                print(Fore.RED + "No measurements found for this member.")
-            else:
-                dates = [m.get_date() for m in measurements]
-                bmis = [m.get_bmi() for m in measurements]
-
-                plt.clear_data()
-                plt.plot(dates, bmis, marker='dot')
-                plt.title(f"{member.get_name()}'s BMI Progress")
-                plt.xlabel("Date")
-                plt.ylabel("BMI")
-                plt.show()
-    elif choice == '9':
         print(Fore.GREEN + "Thank You. Stay healthy!")
         break
     else:

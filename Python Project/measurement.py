@@ -5,6 +5,14 @@ class Measurement:
         self.__bmi = self.__calculate_bmi()
         self.__date = date 
 
+    def display(self):
+        print("------ Measurement Information ------")
+        print(f"Height: {self.get_height_cm()}")
+        print(f"Weight: {self.get_weight_kg()}")
+        print(f"BMI: {self.get_bmi()}")
+        print(f"Date: {self.get_date()}")
+
+
     def __calculate_bmi(self):
         height_m = self.__height_cm / 100
         return round(self.__weight_kg / (height_m ** 2), 2)
