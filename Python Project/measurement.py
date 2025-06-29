@@ -1,17 +1,19 @@
+from colorama import Fore
+
+
 class Measurement:
-    def __init__(self, height_cm : float, weight_kg : float, date:str):
+    def __init__(self, height_cm: float, weight_kg: float, date: str):
         self.__height_cm = height_cm
         self.__weight_kg = weight_kg
         self.__bmi = self.__calculate_bmi()
-        self.__date = date 
+        self.__date = date
 
     def display(self):
-        print("------ Measurement Information ------")
-        print(f"Height: {self.get_height_cm()}")
-        print(f"Weight: {self.get_weight_kg()}")
-        print(f"BMI: {self.get_bmi()}")
-        print(f"Date: {self.get_date()}")
-
+        print(Fore.CYAN + "------ Measurement Information ------")
+        print(Fore.YELLOW + f"Height: {self.get_height_cm()} cm")
+        print(Fore.YELLOW + f"Weight: {self.get_weight_kg()} kg")
+        print(Fore.YELLOW + f"BMI: {self.get_bmi()}")
+        print(Fore.YELLOW + f"Date: {self.get_date()}")
 
     def __calculate_bmi(self):
         height_m = self.__height_cm / 100
@@ -29,13 +31,14 @@ class Measurement:
     def get_date(self):
         return self.__date
 
-    def set_height_cm(self, height_cm : float):
+    def set_height_cm(self, height_cm: float):
         self.__height_cm = height_cm
-        self.__bmi = self.__calculate_bmi()  
+        self.__bmi = self.__calculate_bmi()
 
-    def set_weight_kg(self, weight_kg : float):
+    def set_weight_kg(self, weight_kg: float):
         self.__weight_kg = weight_kg
-        self.__bmi = self.__calculate_bmi()  
+        self.__bmi = self.__calculate_bmi()
 
     def set_date(self, date):
         self.__date = date
+

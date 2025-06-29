@@ -1,10 +1,8 @@
 from datetime import datetime
-
-from measurement import Measurement
-from subscription import Subscription
-
 from tabulate import tabulate
 from colorama import Fore
+from measurement import Measurement
+from subscription import Subscription
 
 class Member:
     def __init__(self, member_id, name, birth_date, username, password):
@@ -23,22 +21,23 @@ class Member:
         today = datetime.today()
         return today.year - birth.year - ((today.month, today.day) < (birth.month, birth.day))
 
-    def new_subsicribe(self , subsicription  : Subscription ):
-        self.__subscription.append(subsicription)
-    
-    
-    def new_measurement(self , measurement : Measurement ):
+    def new_subsicribe(self, subscription: Subscription):
+        self.__subscription.append(subscription)
+
+    def new_measurement(self, measurement: Measurement):
         self.__measurement.append(measurement)
-    
-    # def display_measurement_history(self):
-    #     for m in self.__measurement :
-    #         m.display()
-        
+
+    def set_status(self, new_status):
+        self.__membership_status = new_status
+
+    def get_status(self):
+        return self.__membership_status
+
     def display_subscription_history(self):
         if not self.__subscription:
             print(Fore.YELLOW + "No subscriptions found.")
             return
-        
+
         table = []
         for s in self.__subscription:
             table.append([
@@ -50,9 +49,8 @@ class Member:
             ])
 
         headers = ["Category", "Start Date", "End Date", "Payment Type", "Amount Paid"]
-        table_str = tabulate(table, headers=headers, tablefmt="fancy_grid")
-        print(Fore.YELLOW + table_str)
-        
+        print(Fore.CYAN + tabulate(table, headers=headers, tablefmt="fancy_grid"))
+
     def display_measurement_history(self):
         if not self.__measurement:
             print(Fore.YELLOW + "No measurements found.")
@@ -66,22 +64,10 @@ class Member:
                 m.get_bmi(),
                 m.get_date()
             ])
-        
+
         headers = ["Height (cm)", "Weight (kg)", "BMI", "Date"]
-        table_str = tabulate(table, headers=headers, tablefmt="fancy_grid")
-        print(Fore.YELLOW + table_str)    
-    
-        
-    # def display(self):
-    #     print("------ Member Information ------")
-    #     print(f"ID: {self.get_member_id()}")
-    #     print(f"Name: {self.get_name()}")
-    #     print(f"Birth Date: {self.get_birth_date()}")
-    #     print(f"Age: {self.get_age()}")
-    #     print(f"Username: {self.get_username()}")
-    #     print(f"Password: {self.get_password()}")
-    #     print(f"Membership Status: {self.get_membership_status()}")
-    
+        print(Fore.CYAN + tabulate(table, headers=headers, tablefmt="fancy_grid"))
+
     def display(self):
         table = [[
             self.get_member_id(),
@@ -92,8 +78,8 @@ class Member:
             self.get_membership_status()
         ]]
         headers = ["ID", "Name", "Birth Date", "Age", "Username", "Status"]
-        print(tabulate(table, headers=headers, tablefmt="fancy_grid"))
-   
+        print(Fore.CYAN + tabulate(table, headers=headers, tablefmt="fancy_grid"))
+
     def to_list(self):
         return [
             self.__member_id,
