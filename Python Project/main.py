@@ -67,27 +67,145 @@ def delete_member(delete_id):
 def search_member(search_id):
     return gym_members.get(search_id)
 
-def new_subsicribe(member : Member):
+# def new_subsicribe(member : Member):
+#     menu = '''
+# ------------------------------------
+# Choose your subsicribtion :
+# 1- Silver (1000 SAR) for one month
+# 2- Gold (1500 SAR)  for one month
+# 3- Diamond (1800 SAR)  for one month
+# ------------------------------------
+    
+#     '''
+#     # choice = input(menu)
+#     # category = int(choice)
+#     choice = int(input( menu + "\nEnter your subsicribe type: "))
+#     if choice == 1:
+#         subscribe_type = "Silver"
+#         base_price = 1000
+#     elif choice == 2:
+#         subscribe_type = "Gold"
+#         base_price = 1500
+#     elif choice == 3:
+#         subscribe_type = "Diamond"
+#         base_price = 1800
+#     else:
+#         print(Fore.RED + "Invalid subscription choice.")
+#         return
+    
+#     while True:
+#         try:
+#             duration_months = int(input("Enter number of months: ").strip())
+#             if duration_months <= 0:
+#                 raise ValueError
+#             break
+#         except ValueError:
+#             print(Fore.RED + "Please enter a valid positive number.")
+
+#     # start_date = datetime.now()
+#     # end_date = int(input("Enter the number of months: ")) * 30
+#     menu2 = '''
+# payment type :
+# 1- Cash
+# 2- Card
+# Your choice: 
+#     '''
+#     payment_input = int(input(menu2).strip())
+    
+#     if payment_input == '1':
+#         payment_type = "Cash"
+#     elif payment_input == '2':
+#         payment_type = "Card"
+#     else:
+#         print(Fore.RED + "Invalid payment type.")
+#         return
+    
+#     # amount_paid = float(input("amount paid : "))
+    
+#     total_price = base_price * duration_months
+#     start_date = datetime.now().strftime("%Y-%m-%d")
+
+#     sub = Subscribtion(subscribe_type, start_date, "", payment_type, total_price)
+#     sub.set_start_date(start_date, duration_months)
+#     member.new_subsicribe(sub)
+#     print(Fore.GREEN + "subscribtions added successfully.")
+#     print(Fore.GREEN + "\n====== Invoice ======")
+#     print(f"Subscription Type : {subscribe_type}")
+#     print(f"Duration (months) : {duration_months}")
+#     print(f"Payment Type      : {payment_type}")
+#     print(f"Total Amount      : {total_price} SAR")
+#     print("=========================")
+
+def new_subsicribe(member: Member):
     menu = '''
-    Choose your subsicribtion :
-    1- Silver
-    2- Gold
-    3- Diamond
+------------------------------------
+Choose your subscription:
+1- Silver (1000 SAR) for one month
+2- Gold (1500 SAR)  for one month
+3- Diamond (1800 SAR)  for one month
+------------------------------------
     '''
-    choice = input(menu)
-    category = int(choice)
-    subscribe_type = input("Enter your subsicribe type: ")
-    start_date = datetime.now()
-    end_date = int(input("Enter the number of months: ")) * 30
+    try:
+        choice = int(input(menu + "\nEnter your subscription type (1-3): ").strip())
+    except ValueError:
+        print(Fore.RED + "Invalid input. Please enter a number.")
+        return
+
+    if choice == 1:
+        subscribe_type = "Silver"
+        base_price = 1000
+    elif choice == 2:
+        subscribe_type = "Gold"
+        base_price = 1500
+    elif choice == 3:
+        subscribe_type = "Diamond"
+        base_price = 1800
+    else:
+        print(Fore.RED + "Invalid subscription choice. Please choose 1, 2, or 3.")
+        return
+
+    try:
+        duration_months = int(input("Enter number of months: ").strip())
+        if duration_months <= 0:
+            raise ValueError
+    except ValueError:
+        print(Fore.RED + "Invalid duration. Please enter a positive number.")
+        return
+
     menu2 = '''
-    payment type :
-    1- Cash
-    2- Card
+Payment type:
+1- Cash
+2- Card
+Your choice: 
     '''
-    payment_type = int(input(menu2))
-    amount_paid = float(input("amount paid : "))
-    
-    
+    payment_input = input(menu2).strip()
+
+    if payment_input == '1':
+        payment_type = "Cash"
+    elif payment_input == '2':
+        payment_type = "Card"
+    else:
+        print(Fore.RED + "Invalid payment type. Please enter 1 or 2.")
+        return
+
+    total_price = base_price * duration_months
+    start_date = datetime.now().strftime("%Y-%m-%d")
+
+    sub = Subscribtion(subscribe_type, start_date, "", payment_type, total_price)
+    sub.set_start_date(start_date, duration_months)
+    member.new_subsicribe(sub)
+
+    print(Fore.GREEN + "\nSubscription added successfully.\n")
+    print(Fore.GREEN + "-------------- Invoice ---------------")
+    print(Fore.GREEN + f"Member ID           : {member.get_member_id()}")
+    print(Fore.GREEN + f"Member Name           : {member.get_name()}")
+    print(Fore.GREEN + f"Subscription Type   : {subscribe_type}")
+    print(Fore.GREEN + f"Duration (months)   : {duration_months}")
+    print(Fore.GREEN + f"Payment Type        : {payment_type}")
+    print(Fore.GREEN + f"Total Amount        : {total_price} SAR")
+    print(Fore.GREEN + f"Subscription Status : {'Active' if member.get_status() else 'Inactive'}")
+    print(Fore.GREEN + "--------------------------------------")
+
 def display_all_tables():
     if not gym_members:
         print(Fore.RED + "No data to display.")
@@ -113,7 +231,7 @@ def display_all_tables():
         for s in subs:
             row = [
                 member.get_member_id(),
-                s.get_category(),
+                s.get_subscribe_type(),
                 s.get_start_date(),
                 s.get_end_date(),
                 s.get_payment_type(),
@@ -172,24 +290,24 @@ while True:
             member.display()
             while True:
                 submenu = Fore.BLUE + '''
-------------------------------------
-1- Add new subscribtion
-2- Display all subscribtions
-3- Pend subsicribe
-4- Back to main menu
-------------------------------------
+---- Manage Subscriptions ----
+1. Add Subscription
+2. View Subscription History
+3. Suspend Membership
+4. Reactivate Membership
+5. Back to Main Menu
+------------------------------
 '''
                 x = input(submenu + Fore.YELLOW + "\nChoose an option: ").strip()
                 if x == '1':
-                    sub = new_subsicribe()
-                    member.new_subsicribe(sub)
-                    print(Fore.GREEN + "subscribtions added successfully.")
+                    new_subsicribe(member)
                 elif x == '2':
                     member.display_subscribtions_history()
-
                 elif x == '3':
                     member.pend_subscribtions()
                 elif x == '4':
+                    member.activate_subsicribtion()
+                elif x == '5':
                     break
                 else:
                     print(Fore.RED + "Invalid option. Try again.")

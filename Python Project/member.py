@@ -21,6 +21,8 @@ class Member:
     def pend_subscribtions(self):
         self.__membership_activation = False
         self.__pend_date = datetime.now()
+        print(Fore.YELLOW + "Membership has been suspended.")
+
        
     def activate_subsicribtion(self):
         self.__membership_activation = True
@@ -29,9 +31,8 @@ class Member:
         new_date = current_subsicribtion.get_end_date() + timedelta(days= min( additional_days.days, self.__pend_credit ) )
         self.__pend_credit = self.__pend_credit - additional_days.days
         current_subsicribtion.set_end_date(new_date)
-        
-            
-    
+         
+
 
     def __calculate_age(self):
         birth = datetime.strptime(self.__birth_date, "%Y-%m-%d")
@@ -47,24 +48,6 @@ class Member:
 
     def get_status(self):
         return self.__membership_activation
-
-    def display_subscribtions_history(self):
-        if not self.__subscribtions:
-            print(Fore.YELLOW + "No subscribtions found.")
-            return
-
-        table = []
-        for s in self.__subscribtions:
-            table.append([
-                s.get_category(),
-                s.get_start_date(),
-                s.get_end_date(),
-                s.get_payment_type(),
-                s.get_amount_paid()
-            ])
-
-        headers = ["Category", "Start Date", "End Date", "Payment Type", "Amount Paid"]
-        print(Fore.CYAN + tabulate(table, headers=headers, tablefmt="fancy_grid"))
 
    
     def display(self):
@@ -86,7 +69,39 @@ class Member:
             self.__age,
             self.__membership_activation
         ]
+        
+    def display_subscribtions_history(self):
+        """
+        Print a table of all subscriptions for this member,
+        with a Status (Active/Expired) based on end date.
+        """
+        if not self.__subscribtions:
+            print(Fore.YELLOW + "No subscriptions found for this member.")
+            return
 
+        today = datetime.now().date()
+        table = []
+        for s in self.__subscribtions:
+            # parse end date string into a date
+            try:
+                end_dt = datetime.strptime(s.get_end_date(), "%Y-%m-%d").date()
+            except Exception:
+                status = "Unknown"
+            else:
+                status = "Active" if end_dt >= today else "Expired"
+
+            table.append([
+                s.get_subscribe_type(),
+                s.get_start_date(),
+                s.get_end_date(),
+                s.get_payment_type(),
+                s.get_amount_paid(),
+                status
+            ])
+
+        headers = ["Type", "Start Date", "End Date", "Payment", "Amount Paid", "Status"]
+        print(Fore.CYAN + tabulate(table, headers=headers, tablefmt="fancy_grid"))
+ 
     def get_member_id(self):
         return self.__member_id
 
