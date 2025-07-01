@@ -17,12 +17,22 @@ class Member:
         self.__pend_credit = PEND_LIMIT
 
     def pend_subscribtions(self):
+        
+        if self.__membership_activation == 'expired':
+            print("Cannot reactivate.")
+            return
+        
         self.__membership_activation = 'suspend'
         self.pend_date = datetime.now()
         self.__subscribtions[-1].pend_subscribtions()
         print(Fore.YELLOW + "Membership has been suspended.")
 
     def activate_subsicribtion(self):
+        
+        if self.__membership_activation == 'expired':
+            print("Cannot reactivate.")
+            return
+        
         self.__membership_activation = 'activate'
         current_sub = self.__subscribtions[-1]
         current_sub.set_status("activate")
@@ -31,7 +41,7 @@ class Member:
         new_date = current_sub.get_end_date() + timedelta(days=extend_days)
         self.__pend_credit -= extend_days
         current_sub.set_end_date(new_date)
-        print(Fore.GREEN + f"Membership reactivated and extended by {extend_days} days.")
+        print(Fore.GREEN + f"Membership reactivated")
 
     def __calculate_age(self):
         birth = datetime.strptime(self.__birth_date, "%Y-%m-%d")
@@ -73,8 +83,8 @@ class Member:
             
             row = [
                 s.get_subscribe_type(),
-                s.get_start_date(),
-                s.get_end_date(),
+                s.get_start_date().date(),
+                s.get_end_date().date(),
                 s.get_payment_type(),
                 s.get_amount_paid(),
                 s.get_status()

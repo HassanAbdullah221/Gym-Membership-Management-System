@@ -3,10 +3,15 @@ from dateutil.relativedelta import relativedelta
 from colorama import Fore
 
 class Subscribtion:
-    def __init__(self, subscribe_type, start_date, duration_months: int, payment_type, amount_paid):
+    def __init__(self, subscribe_type, start_date, duration_months, payment_type, amount_paid):
         self.__subscribe_type = subscribe_type
         self.__start_date = start_date
-        self.__end_date = start_date + timedelta(days=(30 * duration_months))
+
+        if type(duration_months) == int:
+            self.__end_date = start_date + timedelta(days=(30 * duration_months))
+        else:
+            self.__end_date = duration_months    
+
         self.__payment_type = payment_type
         self.__amount_paid = amount_paid
         self.__membership_activation = "activate"
@@ -55,8 +60,8 @@ class Subscribtion:
     def to_dict(self):
         return {
             "subscribe_type": self.__subscribe_type,
-            "start_date": self.__start_date.strftime("%Y-%m-%d %H:%M:%S"),
-            "end_date": self.__end_date.strftime("%Y-%m-%d %H:%M:%S"),
+            "start_date": self.__start_date.strftime("%Y-%m-%d"),
+            "end_date": self.__end_date.strftime("%Y-%m-%d"),
             "payment_type": self.__payment_type,
             "amount_paid": self.__amount_paid,
             "status": self.__membership_activation

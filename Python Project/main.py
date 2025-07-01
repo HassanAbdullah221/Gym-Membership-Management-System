@@ -6,32 +6,28 @@ from tabulate import tabulate
 from __init__ import SILVER_PRICE, GOLD_PRICE, DIAMOND_PRICE
 import json
 
+
 init(autoreset=True)
 
 gym_members = dict()
 
-# ✅ 1. Active Member (ongoing subscription)
-active_member = Member("222", "Ahmed", "1990-01-01")
-active_sub = Subscribtion("Gold", datetime.now(), 3, "Card", 900)
-active_member.new_subscribe(active_sub)
-gym_members["222"] = active_member
-active_sub2 = Subscribtion("Silver", datetime.now(), 2, "Cash", 400)
-active_member.new_subscribe(active_sub2)
-gym_members["222"] = active_member
+def load_memebrs():
+    global gym_members
 
-# ❌ 2. Expired Member (end date in the past)
-expired_member = Member("333", "Sara", "1985-05-05")
-expired_start = datetime.now() - timedelta(days=365)
-expired_sub = Subscribtion("Silver", expired_start, 1, "Cash", 200)  # 1 month old, now expired
-expired_member.new_subscribe(expired_sub)
-gym_members["333"] = expired_member
+    with open('gym_data.json', 'r') as file:
+        data = json.load(file)
 
-# 🟡 3. Suspended Member (active subscription but manually suspended)
-suspended_member = Member("444", "Faisal", "1992-07-20")
-suspended_sub = Subscribtion("Diamond", datetime.now(), 6, "Card", 2400)
-suspended_member.new_subscribe(suspended_sub)
-suspended_member.pend_subscribtions()
-gym_members["444"] = suspended_member
+    
+    for member in data:
+        loaded_member = Member(member["member_id"], member["name"], member["birth_date"])
+
+        for sub in member["subscriptions"]:
+            loaded_sub = Subscribtion(sub["subscribe_type"], datetime.strptime(sub["start_date"], "%Y-%m-%d"), datetime.strptime(sub["end_date"], "%Y-%m-%d"), sub["payment_type"], sub["amount_paid"])
+            loaded_member.new_subscribe(loaded_sub)
+            
+        
+        gym_members[member["member_id"]] = loaded_member
+
 
 
 def add_member():
@@ -55,8 +51,9 @@ def add_member():
     member = Member(member_id, name, birth_date)
     gym_members[member_id] = member
 
+    age = member.get_age()
     print(Fore.GREEN + "----- Member added successfully ----")
-    print(Fore.GREEN + tabulate([[member_id, name, birth_date]], headers=["ID", "Name", "Birth Date"], tablefmt="fancy_grid"))
+    print(Fore.GREEN + tabulate([[member_id, name, age ,birth_date]], headers=["ID", "Name", "Age" ,"Birth Date"], tablefmt="fancy_grid"))
     save_to_json()
 
 def delete_member(delete_id):
@@ -174,8 +171,8 @@ def save_to_json(filename="gym_data.json"):
         data.append(member_dict)
     with open(filename, "w", encoding="utf-8") as file:
         json.dump(data, file, indent=4)
-    print(Fore.GREEN + f"Data saved to {filename}")
-1
+    # print(Fore.GREEN + f"Data saved to {filename}")
+
 def display_subscribtions_history(self):
        
         if not self.__subscribtions:
@@ -194,13 +191,14 @@ def display_subscribtions_history(self):
 
             table.append([
                 s.get_subscribe_type(),
-                s.get_start_date(),
-                s.get_end_date(),
+                s.get_start_date().date(),
+                s.get_end_date().date(),
                 s.get_payment_type(),
                 s.get_amount_paid(),
                 status
             ])
 
+        print(table)
         headers = ["Type", "Start Date", "End Date", "Payment", "Amount Paid", "Status"]
         print(Fore.CYAN + tabulate(table, headers=headers, tablefmt="fancy_grid"))
  
@@ -235,8 +233,8 @@ def dispaly_all(filename="gym_data.json"):
             if subs:
                 sub_table = [[
                     s["subscribe_type"],
-                    s["start_date"],
-                    s["end_date"],
+                    s["start_date"].date(),
+                    s["end_date"].date(),
                     s["payment_type"],
                     s["amount_paid"],
                     s.get("status", "N/A")
@@ -251,6 +249,9 @@ def dispaly_all(filename="gym_data.json"):
         print(Fore.RED + f"{filename} not found.")
     except json.JSONDecodeError:
         print(Fore.RED + "Invalid JSON format.")
+
+
+load_memebrs()
 
 while True:
     menu = '''
