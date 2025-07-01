@@ -1,55 +1,46 @@
-from datetime import datetime , timedelta
-from tabulate import tabulate
-from colorama import Fore
-
+# member.py
+from datetime import datetime, timedelta
 from subscription import Subscribtion
+from colorama import Fore, Style
+from tabulate import tabulate
 
-PEND_LIMIT = 60 
-
+PEND_LIMIT = 60
 
 class Member:
-    def __init__(self, member_id, name, birth_date,  password):
+    def __init__(self, member_id, name, birth_date):
         self.__name = name
         self.__member_id = member_id
         self.__birth_date = birth_date
         self.__age = self.__calculate_age()
-        self.__password = password
-        self.__membership_activation = True
+        self.__membership_activation = "activate"
         self.__subscribtions = []
         self.__pend_credit = PEND_LIMIT
 
     def pend_subscribtions(self):
-        self.__membership_activation = False
-        self.__pend_date = datetime.now()
+        self.__membership_activation = 'suspend'
+        self.pend_date = datetime.now()
+        self.__subscribtions[-1].pend_subscribtions()
         print(Fore.YELLOW + "Membership has been suspended.")
 
-       
     def activate_subsicribtion(self):
-        self.__membership_activation = True
-        current_subsicribtion = self.__subscribtions[-1]
-        additional_days = datetime.now() - self.__pend_date
-        new_date = current_subsicribtion.get_end_date() + timedelta(days= min( additional_days.days, self.__pend_credit ) )
-        self.__pend_credit = self.__pend_credit - additional_days.days
-        current_subsicribtion.set_end_date(new_date)
-         
-
+        self.__membership_activation = 'activate'
+        current_sub = self.__subscribtions[-1]
+        current_sub.set_status("activate")
+        additional_days = datetime.now() - self.pend_date
+        extend_days = min(additional_days.days, self.__pend_credit)
+        new_date = current_sub.get_end_date() + timedelta(days=extend_days)
+        self.__pend_credit -= extend_days
+        current_sub.set_end_date(new_date)
+        print(Fore.GREEN + f"Membership reactivated and extended by {extend_days} days.")
 
     def __calculate_age(self):
         birth = datetime.strptime(self.__birth_date, "%Y-%m-%d")
         today = datetime.today()
         return today.year - birth.year - ((today.month, today.day) < (birth.month, birth.day))
 
-    def new_subsicribe(self, subscribtions: Subscribtion):
-        self.__subscribtions.append(subscribtions)
+    def new_subscribe(self, subscription: Subscribtion):
+        self.__subscribtions.append(subscription)
 
-   
-    def set_status(self, new_status):
-        self.__membership_activation = new_status
-
-    def get_status(self):
-        return self.__membership_activation
-
-   
     def display(self):
         table = [[
             self.get_member_id(),
@@ -58,8 +49,8 @@ class Member:
             self.get_age(),
             self.get_membership_status()
         ]]
-        headers = ["ID", "Name", "Birth Date", "Age",  "Status"]
-        print(Fore.GREEN + tabulate(table, headers=headers, tablefmt="fancy_grid"))
+        headers = ["ID", "Name", "Birth Date", "Age", "Status"]
+        print(Fore.CYAN + tabulate(table, headers=headers, tablefmt="fancy_grid"))
 
     def to_list(self):
         return [
@@ -69,39 +60,31 @@ class Member:
             self.__age,
             self.__membership_activation
         ]
-        
+
     def display_subscribtions_history(self):
-        """
-        Print a table of all subscriptions for this member,
-        with a Status (Active/Expired) based on end date.
-        """
         if not self.__subscribtions:
             print(Fore.YELLOW + "No subscriptions found for this member.")
             return
 
-        today = datetime.now().date()
         table = []
         for s in self.__subscribtions:
-            # parse end date string into a date
-            try:
-                end_dt = datetime.strptime(s.get_end_date(), "%Y-%m-%d").date()
-            except Exception:
-                status = "Unknown"
-            else:
-                status = "Active" if end_dt >= today else "Expired"
-
-            table.append([
+            if datetime.now() > s.get_end_date() and s.get_status() != "expired":
+                s.set_status("expired")
+            
+            row = [
                 s.get_subscribe_type(),
                 s.get_start_date(),
                 s.get_end_date(),
                 s.get_payment_type(),
                 s.get_amount_paid(),
-                status
-            ])
+                s.get_status()
+            ]
+            table.append(row)
 
         headers = ["Type", "Start Date", "End Date", "Payment", "Amount Paid", "Status"]
-        print(Fore.CYAN + tabulate(table, headers=headers, tablefmt="fancy_grid"))
- 
+        print(Fore.MAGENTA + tabulate(table, headers=headers, tablefmt="fancy_grid"))
+
+    # Getters
     def get_member_id(self):
         return self.__member_id
 
@@ -114,16 +97,39 @@ class Member:
     def get_age(self):
         return self.__age
 
-    def get_password(self):
-        return self.__password
-
+    # def get_membership_status(self):
+    #     return self.__membership_activation
     def get_membership_status(self):
+        if self.__subscribtions:
+            all_expired = True
+            for sub in self.__subscribtions:
+                if datetime.now() > sub.get_end_date():
+                    sub.set_status("expired")
+                else:
+                    all_expired = False
+            if all_expired:
+                self.__membership_activation = "expired"
         return self.__membership_activation
 
+    
     def get_subscribtions(self):
         return self.__subscribtions
 
-    def set_subscribtions(self, subscribtions):
-        self.__subscribtions = subscribtions
+    def set_subscribtions(self, subscriptions):
+        self.__subscribtions = subscriptions
+            
+    def to_dict(self):
+        subscriptions_list = []
+        for s in self.__subscribtions:
+            sub_dict = s.to_dict()
+            subscriptions_list.append(sub_dict)
+        member_data = {
+            "member_id": self.__member_id,
+            "name": self.__name,
+            "birth_date": self.__birth_date,
+            "age": self.__age,
+            "membership_activation": self.__membership_activation,
+            "subscriptions": subscriptions_list
+        }
 
-   
+        return member_data

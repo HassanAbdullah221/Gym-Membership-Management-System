@@ -1,171 +1,106 @@
 from member import Member
-from colorama import Fore, Style, init
-from datetime import datetime
-from tabulate import tabulate
-from dateutil.relativedelta import relativedelta
-
 from subscription import Subscribtion
+from datetime import datetime, timedelta
+from colorama import Fore, Style, init
+from tabulate import tabulate
+from __init__ import SILVER_PRICE, GOLD_PRICE, DIAMOND_PRICE
+import json
 
 init(autoreset=True)
 
 gym_members = dict()
 
-## Member 1 (updated to remove 'username')
-test_member = Member("111", "John Doe", "1995-06-15", "pass123")
+# ✅ 1. Active Member (ongoing subscription)
+active_member = Member("222", "Ahmed", "1990-01-01")
+active_sub = Subscribtion("Gold", datetime.now(), 3, "Card", 900)
+active_member.new_subscribe(active_sub)
+gym_members["222"] = active_member
+active_sub2 = Subscribtion("Silver", datetime.now(), 2, "Cash", 400)
+active_member.new_subscribe(active_sub2)
+gym_members["222"] = active_member
 
-# Add subscribtions to the member
-sub_j1 = Subscribtion("Silver", "2024-06-01", "", "Card", 300)
-sub_j1.set_start_date("2024-06-01", 6)
-test_member.new_subsicribe(sub_j1)
+# ❌ 2. Expired Member (end date in the past)
+expired_member = Member("333", "Sara", "1985-05-05")
+expired_start = datetime.now() - timedelta(days=365)
+expired_sub = Subscribtion("Silver", expired_start, 1, "Cash", 200)  # 1 month old, now expired
+expired_member.new_subscribe(expired_sub)
+gym_members["333"] = expired_member
 
-sub_j2 = Subscribtion("Gold", "2025-01-01", "", "Cash", 500)
-sub_j2.set_start_date("2025-01-01", 6)
-test_member.new_subsicribe(sub_j2)
-
-# Add test member to the dictionary
-gym_members["111"] = test_member
+# 🟡 3. Suspended Member (active subscription but manually suspended)
+suspended_member = Member("444", "Faisal", "1992-07-20")
+suspended_sub = Subscribtion("Diamond", datetime.now(), 6, "Card", 2400)
+suspended_member.new_subscribe(suspended_sub)
+suspended_member.pend_subscribtions()
+gym_members["444"] = suspended_member
 
 
 def add_member():
-    print(Fore.CYAN + "------ Add New Gym Member ------")
-    member_id = input("Enter member ID: ").strip()
-    
+    print(Fore.BLUE + "------ Add New Gym Member ------")
+    member_id = input(Fore.YELLOW + "Enter member ID: ").strip()
+
     while search_member(member_id) is not None:
         print(Fore.RED + "ID already exists. Try Again!")
-        member_id = input("Enter member ID: ").strip()
+        member_id = input(Fore.YELLOW + "Enter member ID: ").strip()
 
-    name = input("Enter name: ").strip()
+    name = input(Fore.YELLOW + "Enter name: ").strip()
 
     while True:
-        birth_date = input("Enter birth date (YYYY-MM-DD): ").strip()
+        birth_date = input(Fore.YELLOW + "Enter birth date (YYYY-MM-DD): ").strip()
         try:
             datetime.strptime(birth_date, "%Y-%m-%d")
             break
         except ValueError:
             print(Fore.RED + "Invalid date format! Please enter in YYYY-MM-DD.")
 
-    password = input("Choose a password: ").strip()
-
-    member = Member(member_id, name, birth_date,  password)
+    member = Member(member_id, name, birth_date)
     gym_members[member_id] = member
 
-    print(Fore.GREEN + "------------------------------------")
     print(Fore.GREEN + "----- Member added successfully ----")
-    print(Fore.GREEN + "------------------------------------")
-    print(Fore.GREEN + f"Name: {name}")
-    print(Fore.GREEN + f"ID: {member_id}")
-    print(Fore.GREEN + f"Birth Date: {birth_date}")
-    print(Fore.GREEN + f"Password: {password}")
-    print(Fore.GREEN + "------------------------------------")
+    print(Fore.GREEN + tabulate([[member_id, name, birth_date]], headers=["ID", "Name", "Birth Date"], tablefmt="fancy_grid"))
+    save_to_json()
 
 def delete_member(delete_id):
     if delete_id in gym_members:
         del gym_members[delete_id]
+        save_to_json()
         return True
     return False
+
 
 def search_member(search_id):
     return gym_members.get(search_id)
 
-# def new_subsicribe(member : Member):
-#     menu = '''
-# ------------------------------------
-# Choose your subsicribtion :
-# 1- Silver (1000 SAR) for one month
-# 2- Gold (1500 SAR)  for one month
-# 3- Diamond (1800 SAR)  for one month
-# ------------------------------------
-    
-#     '''
-#     # choice = input(menu)
-#     # category = int(choice)
-#     choice = int(input( menu + "\nEnter your subsicribe type: "))
-#     if choice == 1:
-#         subscribe_type = "Silver"
-#         base_price = 1000
-#     elif choice == 2:
-#         subscribe_type = "Gold"
-#         base_price = 1500
-#     elif choice == 3:
-#         subscribe_type = "Diamond"
-#         base_price = 1800
-#     else:
-#         print(Fore.RED + "Invalid subscription choice.")
-#         return
-    
-#     while True:
-#         try:
-#             duration_months = int(input("Enter number of months: ").strip())
-#             if duration_months <= 0:
-#                 raise ValueError
-#             break
-#         except ValueError:
-#             print(Fore.RED + "Please enter a valid positive number.")
 
-#     # start_date = datetime.now()
-#     # end_date = int(input("Enter the number of months: ")) * 30
-#     menu2 = '''
-# payment type :
-# 1- Cash
-# 2- Card
-# Your choice: 
-#     '''
-#     payment_input = int(input(menu2).strip())
-    
-#     if payment_input == '1':
-#         payment_type = "Cash"
-#     elif payment_input == '2':
-#         payment_type = "Card"
-#     else:
-#         print(Fore.RED + "Invalid payment type.")
-#         return
-    
-#     # amount_paid = float(input("amount paid : "))
-    
-#     total_price = base_price * duration_months
-#     start_date = datetime.now().strftime("%Y-%m-%d")
-
-#     sub = Subscribtion(subscribe_type, start_date, "", payment_type, total_price)
-#     sub.set_start_date(start_date, duration_months)
-#     member.new_subsicribe(sub)
-#     print(Fore.GREEN + "subscribtions added successfully.")
-#     print(Fore.GREEN + "\n====== Invoice ======")
-#     print(f"Subscription Type : {subscribe_type}")
-#     print(f"Duration (months) : {duration_months}")
-#     print(f"Payment Type      : {payment_type}")
-#     print(f"Total Amount      : {total_price} SAR")
-#     print("=========================")
-
-def new_subsicribe(member: Member):
-    menu = '''
+def new_subscribe(member: Member):
+    menu = f'''
 ------------------------------------
 Choose your subscription:
-1- Silver (1000 SAR) for one month
-2- Gold (1500 SAR)  for one month
-3- Diamond (1800 SAR)  for one month
+1- Silver ({SILVER_PRICE} SAR / month)
+2- Gold ({GOLD_PRICE} SAR / month)
+3- Diamond ({DIAMOND_PRICE} SAR / month)
 ------------------------------------
     '''
     try:
-        choice = int(input(menu + "\nEnter your subscription type (1-3): ").strip())
+        choice = int(input(Fore.BLUE + menu + "\n" + Fore.YELLOW + "Enter your subscription type (1-3): ").strip())
     except ValueError:
         print(Fore.RED + "Invalid input. Please enter a number.")
         return
 
     if choice == 1:
         subscribe_type = "Silver"
-        base_price = 1000
+        base_price = SILVER_PRICE
     elif choice == 2:
         subscribe_type = "Gold"
-        base_price = 1500
+        base_price = GOLD_PRICE
     elif choice == 3:
         subscribe_type = "Diamond"
-        base_price = 1800
+        base_price = DIAMOND_PRICE
     else:
         print(Fore.RED + "Invalid subscription choice. Please choose 1, 2, or 3.")
         return
 
     try:
-        duration_months = int(input("Enter number of months: ").strip())
+        duration_months = int(input(Fore.YELLOW + "Enter number of months: ").strip())
         if duration_months <= 0:
             raise ValueError
     except ValueError:
@@ -176,9 +111,9 @@ Choose your subscription:
 Payment type:
 1- Cash
 2- Card
-Your choice: 
+Your choice:
     '''
-    payment_input = input(menu2).strip()
+    payment_input = input(Fore.BLUE + menu2 + Fore.YELLOW).strip()
 
     if payment_input == '1':
         payment_type = "Cash"
@@ -189,107 +124,185 @@ Your choice:
         return
 
     total_price = base_price * duration_months
-    start_date = datetime.now().strftime("%Y-%m-%d")
+    start_date = datetime.now()
 
-    sub = Subscribtion(subscribe_type, start_date, "", payment_type, total_price)
-    sub.set_start_date(start_date, duration_months)
-    member.new_subsicribe(sub)
+    sub = Subscribtion(subscribe_type, start_date, duration_months, payment_type, total_price)
+    member.new_subscribe(sub)
 
     print(Fore.GREEN + "\nSubscription added successfully.\n")
-    print(Fore.GREEN + "-------------- Invoice ---------------")
-    print(Fore.GREEN + f"Member ID           : {member.get_member_id()}")
-    print(Fore.GREEN + f"Member Name           : {member.get_name()}")
-    print(Fore.GREEN + f"Subscription Type   : {subscribe_type}")
-    print(Fore.GREEN + f"Duration (months)   : {duration_months}")
-    print(Fore.GREEN + f"Payment Type        : {payment_type}")
-    print(Fore.GREEN + f"Total Amount        : {total_price} SAR")
-    print(Fore.GREEN + f"Subscription Status : {'Active' if member.get_status() else 'Inactive'}")
-    print(Fore.GREEN + "--------------------------------------")
+    table = [[
+        member.get_member_id(),
+        member.get_name(),
+        subscribe_type,
+        duration_months,
+        payment_type,
+        total_price
+    ]]
+    headers = ["Member ID", "Name", "Type", "Months", "Payment", "Total (SAR)"]
+    print(Fore.GREEN + tabulate(table, headers=headers, tablefmt="fancy_grid"))
+    save_to_json()
 
-def display_all_tables():
+def display_all():
     if not gym_members:
         print(Fore.RED + "No data to display.")
         return
 
-    print(Fore.CYAN + "\n==== All Members ====\n")
-    headers = ["ID", "Name", "Birth Date", "Age",  "Status"]
-    member_table = []
-
+    print(Fore.BLUE + "\n==== All Members ====")
     for member in gym_members.values():
-        row = member.to_list()
-        member_table.append(row)
+        print(Fore.WHITE + "-" * 40)
+        member.display()
 
-    print(tabulate(member_table, headers=headers, tablefmt="fancy_grid"))
-
-   
-    print(Fore.MAGENTA + "\n==== All subscribtions ====\n")
-    s_headers = ["Member ID", "Category", "Start Date", "End Date", "Payment Type", "Amount Paid"]
-    s_table = []
-
+    print(Fore.BLUE + "\n==== All Subscriptions ====")
     for member in gym_members.values():
-        subs = member.get_subscribtions()
-        for s in subs:
-            row = [
-                member.get_member_id(),
+        print(Fore.WHITE + "-" * 40)
+        print(Fore.BLUE + f"Member ID: {member.get_member_id()}")
+        member.display_subscribtions_history()
+
+def update_all_statuses():
+    for member in gym_members.values():
+        if member.get_subscribtions():
+            for sub in member.get_subscribtions():
+                if datetime.now() > sub.get_end_date():
+                    sub.set_status("expired")
+
+def save_to_json(filename="gym_data.json"):
+    update_all_statuses() 
+    
+    data = []
+    for m in gym_members.values():
+        member_dict = m.to_dict()
+        data.append(member_dict)
+    with open(filename, "w", encoding="utf-8") as file:
+        json.dump(data, file, indent=4)
+    print(Fore.GREEN + f"Data saved to {filename}")
+1
+def display_subscribtions_history(self):
+       
+        if not self.__subscribtions:
+            print(Fore.YELLOW + "No subscriptions found for this member.")
+            return
+
+        today = datetime.now().date()
+        table = []
+        for s in self.__subscribtions:
+            try:
+                end_dt = datetime.strptime(s.get_end_date(), "%Y-%m-%d").date()
+            except Exception:
+                status = "Unknown"
+            else:
+                status = "Active" if end_dt >= today else "Expired"
+
+            table.append([
                 s.get_subscribe_type(),
                 s.get_start_date(),
                 s.get_end_date(),
                 s.get_payment_type(),
-                s.get_amount_paid()
-            ]
-            s_table.append(row)
+                s.get_amount_paid(),
+                status
+            ])
 
-    if len(s_table) > 0:
-        print(tabulate(s_table, headers=s_headers, tablefmt="fancy_grid"))
-    else:
-        print(Fore.YELLOW + "No subscribtions recorded.")
+        headers = ["Type", "Start Date", "End Date", "Payment", "Amount Paid", "Status"]
+        print(Fore.CYAN + tabulate(table, headers=headers, tablefmt="fancy_grid"))
+ 
 
+def dispaly_all(filename="gym_data.json"):
+    try:
+        with open(filename, "r", encoding="utf-8") as file:
+            data = json.load(file)
+
+        if not data:
+            print(Fore.RED + "No data found in the JSON file.")
+            return
+
+        print(Fore.BLUE + "\n==== Members from JSON File ====\n")
+
+        for member_data in data:
+            print(Fore.WHITE + "-" * 40)
+
+            # Display Member Info
+            member_table = [[
+                member_data['member_id'],
+                member_data['name'],
+                member_data['birth_date'],
+                member_data.get('age', 'N/A'),
+                member_data.get('membership_activation', 'N/A')
+            ]]
+            headers = ["ID", "Name", "Birth Date", "Age", "Status"]
+            print(Fore.GREEN + tabulate(member_table, headers=headers, tablefmt="fancy_grid"))
+
+            # Display Subscriptions
+            subs = member_data.get("subscriptions", [])
+            if subs:
+                sub_table = [[
+                    s["subscribe_type"],
+                    s["start_date"],
+                    s["end_date"],
+                    s["payment_type"],
+                    s["amount_paid"],
+                    s.get("status", "N/A")
+                ] for s in subs]
+
+                sub_headers = ["Type", "Start", "End", "Payment", "Amount", "Status"]
+                print(Fore.CYAN + tabulate(sub_table, headers=sub_headers, tablefmt="fancy_grid"))
+            else:
+                print(Fore.YELLOW + "No subscriptions found.")
+
+    except FileNotFoundError:
+        print(Fore.RED + f"{filename} not found.")
+    except json.JSONDecodeError:
+        print(Fore.RED + "Invalid JSON format.")
 
 while True:
-    menu = Fore.CYAN + '''
+    menu = '''
 ------------------------------------
 ------- Gym Member System ----------
 ------------------------------------
 1- Add new gym member
 2- Display all members
 3- Delete a member
-4- Search for a member
+4- Search for a member to manage subscriptions
 5- Display Everything in the system
-7- Exit
+6- Exit
 ------------------------------------
 '''
-    choice = input(menu + Fore.YELLOW + "\nChoose an option: ").strip()
+    choice = input(Fore.BLUE + menu + Fore.YELLOW + "\nChoose an option: ").strip()
 
     if choice == '1':
         add_member()
     elif choice == '2':
+        # dispaly_all()
         if not gym_members:
             print(Fore.RED + "No members found.")
         else:
-            print(Fore.CYAN + "\n\n--- All Members ---\n")
-            headers = ["ID", "Name", "Birth Date", "Age",  "Status"]
-            table = []
+            print(Fore.BLUE + "\n--- All Members ---\n")
             for m in gym_members.values():
-                table.append(m.to_list())
-            print(tabulate(table, headers=headers, tablefmt="fancy_grid"))
-
+                print("------------------------------")
+                m.display()
+                
+                
     elif choice == '3':
+        
         delete_id = input(Fore.YELLOW + "Enter the member ID to delete: ").strip()
         if delete_member(delete_id):
             print(Fore.GREEN + "Deleted Successfully!")
         else:
             print(Fore.RED + "Not found. Try Again!")
-
+            
+            
     elif choice == '4':
+        
+        
         search_id = input(Fore.YELLOW + "Enter the member ID to search: ").strip()
         member = search_member(search_id)
         if member is None:
             print(Fore.RED + "Not found.")
         else:
-            print(Fore.GREEN + "\n--- Member Found ---\n\n")
+            print(Fore.GREEN + "\n--- Member Found ---\n")
             member.display()
+
             while True:
-                submenu = Fore.BLUE + '''
+                
+                submenu = '''
 ---- Manage Subscriptions ----
 1. Add Subscription
 2. View Subscription History
@@ -298,26 +311,29 @@ while True:
 5. Back to Main Menu
 ------------------------------
 '''
-                x = input(submenu + Fore.YELLOW + "\nChoose an option: ").strip()
+                x = input(Fore.BLUE + submenu + Fore.YELLOW + "\nChoose an option: ").strip()
                 if x == '1':
-                    new_subsicribe(member)
+                    new_subscribe(member)
                 elif x == '2':
                     member.display_subscribtions_history()
                 elif x == '3':
                     member.pend_subscribtions()
+                    save_to_json()
                 elif x == '4':
                     member.activate_subsicribtion()
+                    save_to_json()
                 elif x == '5':
                     break
                 else:
                     print(Fore.RED + "Invalid option. Try again.")
-
+                    
     elif choice == '5':
-        display_all_tables()
-    
-    elif choice == '7':
+        
+        display_all()
+        
+    elif choice == '6':
+        
         print(Fore.GREEN + "Thank You. Stay healthy!")
         break
-
     else:
         print(Fore.RED + "Invalid choice. Try again.")
