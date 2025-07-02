@@ -1,45 +1,60 @@
-# UNIT-PROJECT-1
 
+Gym Membership System 
 
+overview:
+A gym management system that helps manage gym members and their subscriptions. This system has two main roles: the user (staff/manager) who operates the system and the gym member whose data is being managed.
+The system allows the manager to register new members, assign subscriptions, and track member status easily.
 
-## Based on what you’ve learned until now , create a project of your choosing (impress us with your imagination) . This project must at least satisfy the following minimum requirements :
+Features & User Stories:
 
-- Must be interactive on CLI.
-- Use your coding skills in Python accurately.
-- Organize Your Code into modules & (or packages)
-- Use git & Github to track changes in your code.
+As a gym manager I should be able to do the following:
+- Add a new gym member.
+- View a list of all current members.
+- Search for a specific member by their ID.
+- Delete a member from the system.
+- View a member’s full subscription history.
+- Add a subscription to a specific member (Silver, Gold, or Diamond).
+- Suspend a member’s active subscription.
+- Reactivate a suspended subscription with time compensation.
+- Automatically mark expired subscriptions based on dates.
+- View all system data (members + subscriptions).
+- Save and load all data from a JSON file automatically.
+- Exit the system safely without data loss.
 
-## Example Project :  An online Grocery Store :
+usage : 
+Type 1 - Add a new member
+→ Enter the member's ID, name, and birth date to register them in the system.
 
-#### Overview : An online store that sells fruits to customers. This online store has 2 main users. The customer and the manager of the store . Each one of them should be able to do the following tasks for the store to function properly . 
+Type 2 - Show all members
+→ Displays a list of all current gym members with their details.
 
-### Features & User Stories
-#### As a customer I should be able to do the following :
-- Browse  Products . 
-- View the product info (summary, specs, price, quantity , etc.)
-- Search for Products.
-- Get recommendations for my next purchase based on my purchase history.
-- Add Products to the shopping cart .
-- Remove a product from the shopping cart.
-- List the products in my shopping cart. 
-- Continue to checkout . 
-- Fill in my address for delivery.
-- Get receipt of my purchases.
-- Check delivery status . 
+Type 3 - Delete a member
+→ Enter the member's ID to remove them completely from the system.
 
+Type 4 - Search and manage a member
+→ Enter the member’s ID. If found, you can:
+   1 - Add a new subscription (Silver / Gold / Diamond)
+   2 - View subscription history
+   3 - Suspend the membership
+   4 - Reactivate suspended membership
+   5 - Return to main menu
 
+Type 5 - Show everything
+→ Shows all members along with their full subscription history.
 
-#### Usage :
- Explain to the user how to use your project . 
- for example:
- - type in search product_name to search for a product.
- - type in list_products to show all the products in the grocery.
- - type in show product_name to get information about this product.
- - type in buy product_name to buy the product . 
- - and so on...
+Type 6 - Exit
+→ Closes the application safely.
 
-
-### For your project. Edit this README.md file to include your own project name,  overview, user stories, and usage. 
-
-### NOTE: before submitting the final project, please do the following command:
-`pip freeze > requirements.txt` to enable use to know & use the packages used in your project.
+------------------------------------
+Notes:
+• Data is saved automatically to 'gym_data.json'.
+• Membership statuses:
+   - activate = Active
+   - suspend = Temporarily paused
+   - expired = Ended and not renewed
+• Payment methods: Cash or Card.
+• Subscription plans:
+   - Silver = 200 SAR/month
+   - Gold = 300 SAR/month
+   - Diamond = 400 SAR/month
+------------------------------------
