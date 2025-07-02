@@ -29,7 +29,7 @@
         "name": "Khalid Al-Shammari",
         "birth_date": "1985-05-05",
         "age": 40,
-        "membership_activation": "expired",
+        "membership_activation": "activate",
         "subscriptions": [
             {
                 "subscribe_type": "Silver",
@@ -128,7 +128,23 @@
                 "payment_type": "Card",
                 "amount_paid": 900,
                 "status": "activate"
+            },
+            {
+                "subscribe_type": "Gold",
+                "start_date": "2025-07-02",
+                "end_date": "2025-08-31",
+                "payment_type": "Cash",
+                "amount_paid": 600,
+                "status": "activate"
             }
         ]
+    },
+    {
+        "member_id": "1111",
+        "name": "hassan",
+        "birth_date": "2000-2-2",
+        "age": 25,
+        "membership_activation": "activate",
+        "subscriptions": []
     }
 ]

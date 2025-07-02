@@ -32,13 +32,21 @@ def load_memebrs():
 
 def add_member():
     print(Fore.BLUE + "------ Add New Gym Member ------")
-    member_id = input(Fore.YELLOW + "Enter member ID: ").strip()
+    while True:
+        member_id = input(Fore.YELLOW + "Enter member ID (4 numbers): ").strip()
+        if not member_id.isdigit() or len(member_id) != 4:
+            print(Fore.RED + "ID must be exactly 4 numbers .")
+            continue
+        if search_member(member_id) is not None:
+            print(Fore.RED + "ID already exists. Try again!")
+            continue
+        break
 
-    while search_member(member_id) is not None:
-        print(Fore.RED + "ID already exists. Try Again!")
-        member_id = input(Fore.YELLOW + "Enter member ID: ").strip()
-
-    name = input(Fore.YELLOW + "Enter name: ").strip()
+    while True:
+        name = input(Fore.YELLOW + "Enter name: ").strip()
+        if name:
+            break
+        print(Fore.RED + "Name cannot be empty!")
 
     while True:
         birth_date = input(Fore.YELLOW + "Enter birth date (YYYY-MM-DD): ").strip()
@@ -47,6 +55,7 @@ def add_member():
             break
         except ValueError:
             print(Fore.RED + "Invalid date format! Please enter in YYYY-MM-DD.")
+
 
     member = Member(member_id, name, birth_date)
     gym_members[member_id] = member
@@ -215,9 +224,8 @@ def dispaly_all(filename="gym_data.json"):
         print(Fore.BLUE + "\n==== Members from JSON File ====\n")
 
         for member_data in data:
-            print(Fore.WHITE + "-" * 40)
+            print("---------------------------")
 
-            # Display Member Info
             member_table = [[
                 member_data['member_id'],
                 member_data['name'],
@@ -228,7 +236,6 @@ def dispaly_all(filename="gym_data.json"):
             headers = ["ID", "Name", "Birth Date", "Age", "Status"]
             print(Fore.GREEN + tabulate(member_table, headers=headers, tablefmt="fancy_grid"))
 
-            # Display Subscriptions
             subs = member_data.get("subscriptions", [])
             if subs:
                 sub_table = [[
@@ -271,7 +278,6 @@ while True:
     if choice == '1':
         add_member()
     elif choice == '2':
-        # dispaly_all()
         if not gym_members:
             print(Fore.RED + "No members found.")
         else:
@@ -291,7 +297,6 @@ while True:
             
             
     elif choice == '4':
-        
         
         search_id = input(Fore.YELLOW + "Enter the member ID to search: ").strip()
         member = search_member(search_id)

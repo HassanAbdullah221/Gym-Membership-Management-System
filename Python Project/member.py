@@ -57,9 +57,8 @@ class Member:
             self.get_name(),
             self.get_birth_date(),
             self.get_age(),
-            self.get_membership_status()
         ]]
-        headers = ["ID", "Name", "Birth Date", "Age", "Status"]
+        headers = ["ID", "Name", "Birth Date", "Age"]
         print(Fore.CYAN + tabulate(table, headers=headers, tablefmt="fancy_grid"))
 
     def to_list(self):
@@ -107,8 +106,6 @@ class Member:
     def get_age(self):
         return self.__age
 
-    # def get_membership_status(self):
-    #     return self.__membership_activation
     def get_membership_status(self):
         if self.__subscribtions:
             all_expired = True
