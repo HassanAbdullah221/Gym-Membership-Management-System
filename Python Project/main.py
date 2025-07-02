@@ -155,12 +155,12 @@ def display_all():
 
     print(Fore.BLUE + "\n==== All Members ====")
     for member in gym_members.values():
-        print(Fore.WHITE + "-" * 40)
+        print("------------------------------------" )
         member.display()
 
     print(Fore.BLUE + "\n==== All Subscriptions ====")
     for member in gym_members.values():
-        print(Fore.WHITE + "-" * 40)
+        print("------------------------------------" )
         print(Fore.BLUE + f"Member ID: {member.get_member_id()}")
         member.display_subscribtions_history()
 
@@ -211,6 +211,83 @@ def display_subscribtions_history(self):
         headers = ["Type", "Start Date", "End Date", "Payment", "Amount Paid", "Status"]
         print(Fore.CYAN + tabulate(table, headers=headers, tablefmt="fancy_grid"))
  
+def update_member_info():
+    member_id = input(Fore.YELLOW + "Enter the member ID to update: ").strip()
+
+    if not member_id.isdigit() or len(member_id) != 4:
+        print(Fore.RED + "Invalid ID format. Must be 4 digits.")
+        return
+
+    member = search_member(member_id)
+    if member is None:
+        print(Fore.RED + "Member not found.")
+        return
+
+    print(Fore.GREEN + "\n--- Current Member Info ---")
+    member.display()
+
+    print(Fore.BLUE + "\n--- Update Options ---")
+    print("1. Update Member ID")
+    print("2. Update Name")
+    print("3. Update Birth Date")
+    print("4. Cancel")
+
+    choice = input(Fore.YELLOW + "Choose what to update (1-4): ").strip()
+
+    if choice == '1':
+        new_id = input(Fore.YELLOW + "Enter new 4-digit Member ID: ").strip()
+        if not new_id.isdigit() or len(new_id) != 4:
+            print(Fore.RED + "ID must be exactly 4 digits.")
+            return
+        
+        if new_id in gym_members:
+            print(Fore.RED + "This ID already exists. Try another one.")
+            return
+        
+        del gym_members[member_id]
+        
+        member.set_member_id(new_id)
+        
+        
+        gym_members[new_id] = member
+        print(Fore.GREEN + "Member ID updated successfully.")
+
+    elif choice == '2':
+        
+        new_name = input(Fore.YELLOW + "Enter new name: ").strip()
+        
+        if not new_name:
+            print(Fore.RED + "Name cannot be empty.")
+            return
+        
+        member.set_name(new_name)
+        print(Fore.GREEN + "Name updated successfully.")
+
+    elif choice == '3':
+        
+        new_birth = input(Fore.YELLOW + "Enter new birth date (YYYY-MM-DD): ").strip()
+        if not new_birth:
+            print(Fore.RED + "Birth date cannot be empty.")
+            return
+        try:
+            datetime.strptime(new_birth, "%Y-%m-%d")
+        except ValueError:
+            print(Fore.RED + "Invalid date format.")
+            return
+        
+        member.set_birth_date(new_birth)
+        print(Fore.GREEN + "Birth date updated successfully.")
+
+    elif choice == '4':
+        print(Fore.BLUE + "Update cancelled.")
+        return
+
+    else:
+        print(Fore.RED + "Invalid option.")
+        return
+
+    save_to_json()
+
 
 def dispaly_all(filename="gym_data.json"):
     try:
@@ -238,19 +315,23 @@ def dispaly_all(filename="gym_data.json"):
 
             subs = member_data.get("subscriptions", [])
             if subs:
-                sub_table = [[
-                    s["subscribe_type"],
-                    s["start_date"].date(),
-                    s["end_date"].date(),
-                    s["payment_type"],
-                    s["amount_paid"],
-                    s.get("status", "N/A")
-                ] for s in subs]
+                sub_table = []
+                for s in subs:
+                    row = [
+                        s["subscribe_type"],
+                        s["start_date"].date(),
+                        s["end_date"].date(),
+                        s["payment_type"],
+                        s["amount_paid"],
+                        s.get("status", "N/A")
+                    ]
+                    sub_table.append(row)
 
                 sub_headers = ["Type", "Start", "End", "Payment", "Amount", "Status"]
                 print(Fore.CYAN + tabulate(sub_table, headers=sub_headers, tablefmt="fancy_grid"))
             else:
                 print(Fore.YELLOW + "No subscriptions found.")
+
 
     except FileNotFoundError:
         print(Fore.RED + f"{filename} not found.")
@@ -259,7 +340,6 @@ def dispaly_all(filename="gym_data.json"):
 
 
 load_memebrs()
-
 while True:
     menu = '''
 ------------------------------------
@@ -268,15 +348,17 @@ while True:
 1- Add new gym member
 2- Display all members
 3- Delete a member
-4- Search for a member to manage subscriptions
-5- Display Everything in the system
-6- Exit
+4- Update member information
+5- Search for a member to manage subscriptions
+6- Display Everything in the system
+7- Exit
 ------------------------------------
 '''
     choice = input(Fore.BLUE + menu + Fore.YELLOW + "\nChoose an option: ").strip()
 
     if choice == '1':
         add_member()
+
     elif choice == '2':
         if not gym_members:
             print(Fore.RED + "No members found.")
@@ -285,19 +367,18 @@ while True:
             for m in gym_members.values():
                 print("------------------------------")
                 m.display()
-                
-                
+
     elif choice == '3':
-        
         delete_id = input(Fore.YELLOW + "Enter the member ID to delete: ").strip()
         if delete_member(delete_id):
             print(Fore.GREEN + "Deleted Successfully!")
         else:
             print(Fore.RED + "Not found. Try Again!")
-            
-            
+
     elif choice == '4':
-        
+        update_member_info() 
+
+    elif choice == '5':
         search_id = input(Fore.YELLOW + "Enter the member ID to search: ").strip()
         member = search_member(search_id)
         if member is None:
@@ -307,7 +388,6 @@ while True:
             member.display()
 
             while True:
-                
                 submenu = '''
 ---- Manage Subscriptions ----
 1. Add Subscription
@@ -332,14 +412,13 @@ while True:
                     break
                 else:
                     print(Fore.RED + "Invalid option. Try again.")
-                    
-    elif choice == '5':
-        
-        display_all()
-        
+
     elif choice == '6':
-        
+        display_all()
+
+    elif choice == '7':
         print(Fore.GREEN + "Thank You. Stay healthy!")
         break
+
     else:
         print(Fore.RED + "Invalid choice. Try again.")

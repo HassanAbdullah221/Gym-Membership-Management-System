@@ -138,13 +138,5 @@
                 "status": "activate"
             }
         ]
-    },
-    {
-        "member_id": "1111",
-        "name": "hassan",
-        "birth_date": "2000-2-2",
-        "age": 25,
-        "membership_activation": "activate",
-        "subscriptions": []
     }
 ]

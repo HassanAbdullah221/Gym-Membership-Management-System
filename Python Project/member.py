@@ -122,6 +122,17 @@ class Member:
     def get_subscribtions(self):
         return self.__subscribtions
 
+
+    def set_member_id(self, new_id):
+        self.__member_id = new_id
+
+    def set_name(self, new_name):
+        self.__name = new_name
+
+    def set_birth_date(self, new_birth):
+        self.__birth_date = new_birth
+        self.__age = self.__calculate_age()
+
     def set_subscribtions(self, subscriptions):
         self.__subscribtions = subscriptions
             
