@@ -136,6 +136,14 @@
                 "payment_type": "Cash",
                 "amount_paid": 600,
                 "status": "activate"
+            },
+            {
+                "subscribe_type": "Gold",
+                "start_date": "2025-07-03",
+                "end_date": "2025-10-01",
+                "payment_type": "Cash",
+                "amount_paid": 900,
+                "status": "activate"
             }
         ]
     }

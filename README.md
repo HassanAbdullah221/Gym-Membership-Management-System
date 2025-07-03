@@ -12,6 +12,7 @@ As a gym manager I should be able to do the following:
 - View a list of all current members.
 - Search for a specific member by their ID.
 - Delete a member from the system.
+- update a member information the system.
 - View a member’s full subscription history.
 - Add a subscription to a specific member (Silver, Gold, or Diamond).
 - Suspend a member’s active subscription.
@@ -20,30 +21,37 @@ As a gym manager I should be able to do the following:
 - View all system data (members + subscriptions).
 - Save and load all data from a JSON file automatically.
 - Exit the system safely without data loss.
+## 🔧 Usage Instructions
 
-usage : 
-Type 1 - Add a new member
-→ Enter the member's ID, name, and birth date to register them in the system.
+Once you run the system, you'll see the following main menu options:
 
-Type 2 - Show all members
-→ Displays a list of all current gym members with their details.
+### 🏠 Main Menu
 
-Type 3 - Delete a member
-→ Enter the member's ID to remove them completely from the system.
+1 - Add new gym member  
+→ Register a new member by entering their ID, name, and birth date. The system ensures IDs are 4 digits and unique.
 
-Type 4 - Search and manage a member
-→ Enter the member’s ID. If found, you can:
-   1 - Add a new subscription (Silver / Gold / Diamond)
-   2 - View subscription history
-   3 - Suspend the membership
-   4 - Reactivate suspended membership
-   5 - Return to main menu
+2 - Display all members  
+→ Shows a list of all registered members with their personal details (ID, name, birth date, age).
 
-Type 5 - Show everything
-→ Shows all members along with their full subscription history.
+3 - Delete a member  
+→ Enter a member's ID to permanently remove them from the system.
 
-Type 6 - Exit
-→ Closes the application safely.
+4 - Update member information  
+→ Modify a member's ID, name, or birth date.
+
+5 - Search for a member to manage subscriptions  
+→ Enter a member's ID to view and manage their subscriptions:  
+  1. Add new subscription (Silver / Gold / Diamond)  
+  2. View subscription history  
+  3. Suspend membership  
+  4. Reactivate membership  
+  5. Return to main menu
+
+6 - Display Everything in the system  
+→ View all members along with their full subscription history.
+
+7 - Exit  
+→ Safely close the application and save all changes to the JSON file.
 
 ------------------------------------
 Notes:
